@@ -102,7 +102,17 @@ def parseListing(url):
         mapLink = mapaddress.find('a')['href']
     except AttributeError:
         mapLink = ''
+        
+    # Type of housing
+    extension = url.split('/')[3]
+    if extension == 'roo':
+        type = 'room'
+        bedrooms = 0
+    elif extension == 'sub':
+        type = 'sublet'
+    else:
+        type = ''
     
     # Return discrete data from the listing       
-    row = [bedrooms, price, phone, description, address, mapLink, postingbody, url]
+    row = [bedrooms, price, phone, description, address, mapLink, type, postingbody, url]
     return row
