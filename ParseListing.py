@@ -4,12 +4,12 @@ Created on Mar 17, 2014
 @author: michael donnelly
 '''
 
-def parseListing(url):
-    import re
-    import urllib.request
-    from bs4 import BeautifulSoup
+import re
+import urllib.request
+from bs4 import BeautifulSoup  # docs at http://www.crummy.com/software/BeautifulSoup/bs4/doc/
       
-    ''' Retrieve page and extract contents '''
+def parseListing(url):
+    # Retrieve page and extract contents 
     try:
         page = urllib.request.urlopen(url)
         soup = BeautifulSoup(page)    
@@ -18,21 +18,21 @@ def parseListing(url):
     except AttributeError:
         return ''
     
-    ''' Price '''
+    # Price 
     price = postingtitle.split()[0]
     try:
         price.split('$')[1]
     except IndexError:
         price='' 
 
-    ''' Address '''
+    # Address 
     try:
         address = soup.find('div','mapaddress').get_text()
         address = address.replace(',', ' ')
     except AttributeError:
         address = ''
     
-    ''' Contact phone number '''
+    # Contact phone number 
     try:
         phonePattern = re.compile(r'''
                         # don't match beginning of string, number can start anywhere
@@ -46,8 +46,7 @@ def parseListing(url):
     except AttributeError:
         phone = ''
     
-    ''' Go through block of discrete attributes '''
-       
+    # Go through block of discrete attributes        
     bedrooms=''
     laundry=''
     parking=''
@@ -76,7 +75,7 @@ def parseListing(url):
         else:
             '''print (attribute)'''
     
-    ''' Make amenities from parking, laundry, pets, and smoking '''
+    # Make amenities from#parking, laundry, pets, and smoking 
     amenities = []
     if parking:
         amenities.append(parking)
@@ -97,7 +96,13 @@ def parseListing(url):
     else:
         description = ''
         
-    row = [bedrooms, price, phone, description, address, url]
-    return ",".join(row)
+    # Region
+    try:
+        mapaddress = soup.find('p','mapaddress')
+        mapLink = mapaddress.find('a')['href']
+    except AttributeError:
+        mapLink = ''
     
-    
+    # Return discrete data from the listing       
+    row = [bedrooms, price, phone, description, address, mapLink, postingbody, url]
+    return row
