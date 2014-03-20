@@ -17,7 +17,7 @@ extension = ['apa', 'roo', 'sub']
 maximumPages = [20, 5, 3]
 filename = 'vacancy_list.xlsx'
 pages = 20
-maximumRows = 3000
+maximumRows = 5 #3000
 
 def scrapeRow(row, urlbase, rowNumber, workbook, worksheet):
     link = row.find('a')
