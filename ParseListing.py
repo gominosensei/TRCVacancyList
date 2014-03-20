@@ -15,6 +15,7 @@ def parseListing(url):
         soup = BeautifulSoup(page)    
         postingtitle = soup.find('h2','postingtitle').get_text()
         postingbody = soup.find('section',id='postingbody').get_text()
+        extension = url.split('/')[3]
     except AttributeError:
         return ''
     
@@ -32,20 +33,29 @@ def parseListing(url):
     except AttributeError:
         address = ''
     
-    # Contact phone number 
+    # Contact phone number
+    phonePattern = re.compile(r'''
+                    # don't match beginning of string, number can start anywhere
+        (\d{3})     # area code is 3 digits (e.g. '800')
+        \D          # separator
+        (\d{3})     # trunk is 3 digits (e.g. '555')
+        \D          # separator
+        (\d{4})     # rest of number is 4 digits (e.g. '1212')
+        ''', re.VERBOSE)
+
     try:
-        phonePattern = re.compile(r'''
-                        # don't match beginning of string, number can start anywhere
-            (\d{3})     # area code is 3 digits (e.g. '800')
-            \D          # separator
-            (\d{3})     # trunk is 3 digits (e.g. '555')
-            \D          # separator
-            (\d{4})     # rest of number is 4 digits (e.g. '1212')
-            ''', re.VERBOSE)
-        phone = '-'.join(phonePattern.search(postingbody).groups())
+        replylink = url.replace(extension, 'reply').replace('.html','')
+        replypage = str(urllib.request.urlopen(replylink).read())
+        phone = phonePattern.search(replypage).group(0)
     except AttributeError:
         phone = ''
     
+    if phone == '':
+        try:
+            phone = '-'.join(phonePattern.search(postingbody).groups())
+        except AttributeError:
+            phone = ''
+
     # Go through block of discrete attributes        
     bedrooms=''
     laundry=''
@@ -104,7 +114,6 @@ def parseListing(url):
         mapLink = ''
         
     # Type of housing
-    extension = url.split('/')[3]
     if extension == 'roo':
         bedrooms = 'shared(0)'
     elif extension == 'sub':
