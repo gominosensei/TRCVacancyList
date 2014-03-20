@@ -79,3 +79,4 @@ for category in range(0,3):
 saveSpreadsheet(workbook)
 end = time.time()
 print('done in',end-start,'seconds')
+input("Press Enter to continue...")
