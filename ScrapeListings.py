@@ -8,15 +8,13 @@ import time
 import xlsxwriter
 from bs4 import BeautifulSoup
 from ParseListing import parseListing
-from ExcelFile import createSpreadsheet, addRow, saveSpreadsheet
+from ExcelFile import openFile, createSpreadsheet, addRow, saveSpreadsheet
   
 # Constants
-apa = 'http://madison.craigslist.org/apa/'
 urlbase = 'http://madison.craigslist.org'
 extension = ['apa', 'roo', 'sub']
 maximumPages = [20, 5, 3]
 filename = 'vacancy_list.xlsx'
-pages = 20
 maximumRows = 5 #3000
 
 def scrapeRow(row, urlbase, rowNumber, workbook, worksheet):
@@ -63,7 +61,7 @@ def scrapeCategory(categoryUrl, pages, urlbase, rowNumber, workbook, worksheet):
 
 # Setup
 start = time.time()
-workbook = xlsxwriter.Workbook(filename)
+workbook = openFile(filename)
 worksheet = createSpreadsheet(workbook)
 rowNumber = 0
 

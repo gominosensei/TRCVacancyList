@@ -6,6 +6,16 @@ Created on Mar 18, 2014
 
 import xlsxwriter  # docs at http://xlsxwriter.readthedocs.org/contents.html
 
+def openFile(filename):
+    workbook = xlsxwriter.Workbook(filename)
+    try:
+        workbook.close()
+        workbook = xlsxwriter.Workbook(filename)
+        return workbook 
+    except PermissionError:
+        print('Someone has',filename,'open. Close it and run the script again.')
+        return 
+
 def createSpreadsheet(workbook):
     worksheet = workbook.add_worksheet()
     

@@ -1,3 +1,4 @@
 *.pyc
 vacancy_list.xlsx
 *.lnk
+~$vacancy_list.xlsx
