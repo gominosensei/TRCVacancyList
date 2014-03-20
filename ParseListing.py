@@ -106,13 +106,10 @@ def parseListing(url):
     # Type of housing
     extension = url.split('/')[3]
     if extension == 'roo':
-        type = 'room'
-        bedrooms = 0
+        bedrooms = 'shared(0)'
     elif extension == 'sub':
-        type = 'sublet'
-    else:
-        type = ''
+        bedrooms = 'sublet(' + bedrooms + ')'
     
     # Return discrete data from the listing       
-    row = [bedrooms, price, phone, description, address, mapLink, type, postingbody, url]
+    row = [bedrooms, price, phone, description, address, mapLink, postingbody, url]
     return row
