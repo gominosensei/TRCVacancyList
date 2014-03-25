@@ -121,6 +121,7 @@ def parseListing(url):
         mapQueryString = mapLink.split('?q=')[1]
         geocode = Geocoder.geocode(mapQueryString)
         county = geocode.administrative_area_level_2
+        county = county.split(' ')[0]
         neighborhood = geocode.neighborhood
         zip = geocode.postal_code
     except:
