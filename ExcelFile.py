@@ -4,6 +4,7 @@ Created on Mar 18, 2014
 @author: michael donnelly
 '''
 
+import sys
 import xlsxwriter  # docs at http://xlsxwriter.readthedocs.org/contents.html
 
 def openFile(filename):
@@ -13,7 +14,9 @@ def openFile(filename):
         workbook = xlsxwriter.Workbook(filename)
         return workbook 
     except PermissionError:
-        print('Someone has',filename,'open. Close it and run the script again.')
+        print('Someone has',filename,'open. Close it and run the script again.\n')
+        input('Press Enter to continue...')
+        sys.exit()
         return 
 
 def createSpreadsheet(workbook):
