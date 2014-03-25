@@ -5,6 +5,8 @@ Created on Mar 17, 2014
 
 import urllib.request
 import time
+import os
+import sys
 import xlsxwriter
 from bs4 import BeautifulSoup
 from ParseListing import parseListing
@@ -15,7 +17,7 @@ urlbase = 'http://madison.craigslist.org'
 extension = ['apa', 'roo', 'sub']
 maximumPages = [20, 5, 3]
 filename = 'vacancy_list.xlsx'
-maximumRows = 5 #3000
+maximumRows = 3 #3000
 
 def scrapeRow(row, urlbase, rowNumber, workbook, worksheet):
     link = row.find('a')
@@ -59,6 +61,13 @@ def scrapeCategory(categoryUrl, pages, urlbase, rowNumber, workbook, worksheet):
     
     return rowNumber       
 
+# Make sure craigslist is up
+ping = os.system('ping -c 1 madison.craigslist.org')
+print('ping:',ping)
+#if ping == '0':
+#    print("We can't connect to craigslist")
+#    sys.exit()
+
 # Setup
 start = time.time()
 workbook = openFile(filename)
@@ -75,6 +84,9 @@ for category in range(0,3):
         break
    
 saveSpreadsheet(workbook)
+
+# Display stats to user
 end = time.time()
+print(rowNumber,'listings')
 print('done in',end-start,'seconds')
 input("Press Enter to continue...")
