@@ -7,6 +7,9 @@ Created on Mar 17, 2014
 import re
 import urllib.request
 from bs4 import BeautifulSoup  # docs at http://www.crummy.com/software/BeautifulSoup/bs4/doc/
+#from LookupCounty import findCounty
+from pygeocoder import Geocoder # docs at https://bitbucket.org/xster/pygeocoder/wiki/Home
+# Google geocoding API docs at https://developers.google.com/maps/documentation/geocoding/?csw=1#GeocodingRequests
       
 def parseListing(url):
     # Retrieve page and extract contents 
@@ -85,7 +88,7 @@ def parseListing(url):
         else:
             '''print (attribute)'''
     
-    # Make amenities from#parking, laundry, pets, and smoking 
+    # Make amenities from parking, laundry, pets, and smoking 
     amenities = []
     if parking:
         amenities.append(parking)
@@ -106,19 +109,32 @@ def parseListing(url):
     else:
         description = ''
         
-    # Region
+    # Get the Google Maps link
     try:
         mapaddress = soup.find('p','mapaddress')
         mapLink = mapaddress.find('a')['href']
     except AttributeError:
         mapLink = ''
+
+    # Geocode based on the Maps URL
+    try:
+        mapQueryString = mapLink.split('?q=')[1]
+        geocode = Geocoder.geocode(mapQueryString)
+        county = geocode.administrative_area_level_2
+        neighborhood = geocode.neighborhood
+        zip = geocode.postal_code
+    except:
+        print ('  Geocoding error')
+        county = ''
+        neighborhood = ''
+        zip = ''
         
     # Type of housing
     if extension == 'roo':
         bedrooms = 'shared(0)'
     elif extension == 'sub':
         bedrooms = 'sublet(' + bedrooms + ')'
-    
+
     # Return discrete data from the listing       
-    row = [bedrooms, price, phone, description, address, mapLink, postingbody, url]
+    row = [bedrooms, price, phone, description, address, mapLink, county, zip, neighborhood, postingbody, url]
     return row
