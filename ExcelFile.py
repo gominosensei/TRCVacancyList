@@ -32,7 +32,13 @@ def createSpreadsheet(workbook):
     worksheet.set_column('E:E', 14) # available 
     worksheet.set_column('F:F', 35) # address
     worksheet.set_column('G:G', 10) # region 
-    worksheet.set_column('H:H', 70) # listing
+    worksheet.set_column('H:H', 9)  # county
+    worksheet.set_column('I:I', 6)  # ZIP code
+    worksheet.set_column('J:J', 17) # neighborhood
+    worksheet.set_column('K:K', 70) # listing
+    # listing URL
+
+    # listing
     
     # Headers
     bold = workbook.add_format({'bold': True})
@@ -45,8 +51,11 @@ def createSpreadsheet(workbook):
     worksheet.write('E1', 'Available', bold)
     worksheet.write('F1', 'Address', bold)
     worksheet.write('G1', 'Region', bold)
-    worksheet.write('H1', 'Listing', italics)
-    worksheet.write('I1', 'URL', italics)
+    worksheet.write('H1', 'County', italics)
+    worksheet.write('I1', 'ZIP', italics)
+    worksheet.write('J1', 'Neighborhood', italics)
+    worksheet.write('K1', 'Listing', italics)
+    worksheet.write('L1', 'URL', italics)
             
     return worksheet
 
@@ -62,11 +71,11 @@ def addRow(workbook, worksheet, rowNumber, rowData):
     wrap.set_text_wrap()
     wrap.set_align('top')
     
-    # bedrooms, price, contact, description, available, address, region, listing, url
-    formats = [top, top, top, wrap, top, top, None, wrap, None]
+    # bedrooms, price, contact, description, available, address, region, county, zip, neighborhood, listing, url
+    formats = [top, top, top, wrap, top, top, None, top, top, top, wrap, None]
         
     # Add columns to sheet
     rowData.insert(4, '')   # blank column for availability
-    for column in range (0,9):
+    for column in range (0,12):
         worksheet.write(rowNumber, column, rowData[column], formats[column])
             
