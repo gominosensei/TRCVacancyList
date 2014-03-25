@@ -29,9 +29,9 @@ def createSpreadsheet(workbook):
     worksheet.set_column('E:E', 14) # available 
     worksheet.set_column('F:F', 35) # address
     worksheet.set_column('G:G', 10) # region 
-    worksheet.set_column('H:H', 15) # county
-    # ZIP code
-    # neighborhood
+    worksheet.set_column('H:H', 8) # county
+    worksheet.set_column('I:I', 6)  # ZIP code
+    worksheet.set_column('J:J', 15)  # neighborhood
     worksheet.set_column('K:K', 70) # listing
     # listing URL
     
@@ -47,7 +47,7 @@ def createSpreadsheet(workbook):
     worksheet.write('F1', 'Address', bold)
     worksheet.write('G1', 'Region', bold)
     worksheet.write('H1', 'County', italics)
-    worksheet.write('I1', 'ZIP Code', italics)
+    worksheet.write('I1', 'ZIP', italics)
     worksheet.write('J1', 'Neighborhood', italics)
     worksheet.write('K1', 'Listing', italics)
     worksheet.write('L1', 'URL', italics)
