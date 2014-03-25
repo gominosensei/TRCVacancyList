@@ -7,6 +7,38 @@ Created on Mar 17, 2014
 import re
 import urllib.request
 from bs4 import BeautifulSoup  # docs at http://www.crummy.com/software/BeautifulSoup/bs4/doc/
+
+def findPhone(text):
+    # RegEx Patterns
+    phonePattern = re.compile(r'''
+        (\d{3})     # area code is 3 digits (e.g. '800')
+        \D{0,2}     # optional 1 or 2 character separator
+        (\d{3})     # prefix is 3 digits (e.g. '555')
+        \D?         # optional 1 character separator
+        (\d{4})     # rest of number is 4 digits (e.g. '1212')
+        ''', re.VERBOSE)
+
+    phonePatternNoAreaCode = re.compile(r'''
+        (\d{3})     # prefix is 3 digits (e.g. '555')
+        -           # require literal dash to avoid false positives
+        (\d{4})     # rest of number is 4 digits (e.g. '1212')
+        ''', re.VERBOSE)
+
+    # Search first with then without area code
+    try:
+        phone = phonePattern.search(text)
+    except AttributeError:
+        try:
+            phone = phonePatternNoAreaCode.search(text)
+        except AttributeError:
+            phone = ''
+    # Format for display with dashes
+    try:
+        phone = '-'.join(phone.groups())
+    except AttributeError:
+        phone = ''
+        
+    return(phone)
       
 def parseListing(url):
     # Retrieve page and extract contents 
@@ -34,28 +66,16 @@ def parseListing(url):
         address = ''
     
     # Contact phone number
-    phonePattern = re.compile(r'''
-                    # don't match beginning of string, number can start anywhere
-        (\d{3})     # area code is 3 digits (e.g. '800')
-        \D          # separator
-        (\d{3})     # trunk is 3 digits (e.g. '555')
-        \D          # separator
-        (\d{4})     # rest of number is 4 digits (e.g. '1212')
-        ''', re.VERBOSE)
-
     try:
         replylink = url.replace(extension, 'reply').replace('.html','')
         replypage = str(urllib.request.urlopen(replylink).read())
-        phone = phonePattern.search(replypage).group(0)
+        phone = findPhone(replypage)
     except AttributeError:
-        phone = ''
-    
-    if phone == '':
         try:
-            phone = '-'.join(phonePattern.search(postingbody).groups())
+            phone = findPhone(postingbody)
         except AttributeError:
-            phone = ''
-
+            phone = ''    
+    
     # Go through block of discrete attributes        
     bedrooms=''
     laundry=''
