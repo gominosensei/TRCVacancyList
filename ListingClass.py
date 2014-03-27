@@ -90,9 +90,9 @@ class Listing:
 	# Combined output for the bedrooms column with the # of rooms plus the type of rental
 	def bedroomsField(self):
 		if self.housingType == 'roo':
-			return 'shared(0)'
+			return 'Shared(0)'
 		if self.housingType == 'sub':
-			return 'sublet(' + self.bedrooms + ')'
+			return 'Sublet(' + self.bedrooms + ')'
 		return self.bedrooms
 
 	def representation(self):
@@ -184,5 +184,3 @@ class Listing:
 			self.zip = geocode.postal_code
 		except:
 			pass
-		
-		print(self)
