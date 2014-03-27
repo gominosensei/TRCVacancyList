@@ -55,21 +55,24 @@ def saveSpreadsheet(workbook):
     workbook.close()
 
 def addRow(workbook, worksheet, rowNumber, listing):
-    rowData = listing.row()
+	rowData = listing.row()
 
-    # Formatting
-    top = workbook.add_format()
-    top.set_align('top')
-    
-    wrap = workbook.add_format()
-    wrap.set_text_wrap()
-    wrap.set_align('top')
-    
-    # bedrooms, price, contact, description, available, address, region, listing, url
-    formats = [top, top, top, wrap, top, top, None, wrap, None]
-        
-    # Add columns to sheet
-    rowData.insert(4, '')   # blank column for availability
-    for column in range (0,9):
-        worksheet.write(rowNumber, column, rowData[column], formats[column])
-            
+	# Formatting
+	top = workbook.add_format()
+	top.set_align('top')
+
+	wrap = workbook.add_format()
+	wrap.set_text_wrap()
+	wrap.set_align('top')
+
+	# Add rows
+	worksheet.write(rowNumber, 0, listing.bedroomsField(), top)
+	worksheet.write(rowNumber, 1, listing.price, top)
+	worksheet.write(rowNumber, 2, listing.phone, top)
+	worksheet.write(rowNumber, 3, listing.descriptionField(), wrap)
+	# availability
+	worksheet.write(rowNumber, 5, listing.address, top)
+	worksheet.write(rowNumber, 6, listing.mapUrl)
+	worksheet.write(rowNumber, 7, listing.listingBody, wrap)
+	worksheet.write(rowNumber, 8, listing.listingUrl)
+
