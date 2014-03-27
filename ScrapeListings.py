@@ -7,22 +7,23 @@ import urllib.request
 import time
 import xlsxwriter
 from bs4 import BeautifulSoup
-from ParseListing import parseListing
 from ExcelFile import openFile, createSpreadsheet, addRow, saveSpreadsheet
+from ListingClass import Listing
   
 # Constants
 urlbase = 'http://madison.craigslist.org'
 extension = ['apa', 'roo', 'sub']
 maximumPages = [20, 5, 3]
 filename = 'vacancy_list.xlsx'
-maximumRows = 5 #3000
+maximumRows = 3 #3000
 
 def scrapeRow(row, urlbase, rowNumber, workbook, worksheet):
-    link = row.find('a')
-    url = urlbase + link['href']
-    row = parseListing(url)
-    addRow(workbook, worksheet, rowNumber, row)
-    print(rowNumber,"adding listing",url)
+	link = row.find('a')
+	url = urlbase + link['href']
+	thisListing = Listing(url)
+	row = thisListing.row()
+	addRow(workbook, worksheet, rowNumber, row)
+	print(rowNumber,"adding listing",url)
 
 def scrapePage(listUrl, urlbase, rowNumber, workbook, worksheet):
     print('\nscraping',listUrl)

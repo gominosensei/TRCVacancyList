@@ -41,39 +41,74 @@ def findPhone(text):
     return(phone)
 
 class Listing:
+	# Attributes
 	price = ''
 	housingType = ''
 	address = ''
 	phone = ''
-	bedrooms=''
-	laundry=''
-	parking=''    
-	dogsAllowed=False
-	catsAllowed=False
-	noSmoking=False    
+	bedrooms = ''
+	laundry = ''
+	parking = ''    
+	dogsAllowed = False
+	catsAllowed = False
+	noSmoking = False    
 	area = ''
 	mapUrl = ''
 	listingUrl = ''
+	listingBody = ''		
 		
-		
-	def description():
-		return 'desc'
+	# Combined output of several attributes for the description column
+	def descriptionField(self):			
+		# Make amenities from parking, laundry, pets, and smoking 
+		amenities = []
+		if self.parking:
+			amenities.append(self.parking)
+		if self.laundry:
+			amenities.append(self.laundry)
+		if self.dogsAllowed and self.catsAllowed:
+			amenities.append('cats & dogs allowed')
+		elif self.dogsAllowed: 
+			amenities.append('dogs allowed')
+		elif self.catsAllowed:
+			amenities.append('cats allowed')
+		if self.noSmoking:
+			amenities.append('no smoking')
+					
+		if len(amenities)>0:
+			description = "Amenities include: " + '; '.join(amenities)
+			description = description.replace(',', ' ')
+		else:
+			description = ''
+			
+		return description
+			
+	# Combined output for the bedrooms column with the # of rooms plus the type of rental
+	def bedroomsField(self):
+		if self.housingType == 'roo':
+			return 'shared(0)'
+		if self.housingType == 'sub':
+			return 'sublet(' + self.bedrooms + ')'
+		return self.bedrooms
 
-	def bedroomColumn():
-		return 'beds'
+	# Legacy support - spit out the row with all the fields in order
+	def row(self):				
+		# Return discrete data from the listing       
+		row = [self.bedroomsField(), self.price, self.phone, self.descriptionField(), self.address, self.mapUrl, self.listingBody, self.listingUrl]
+		return row
 
 	def representation(self):
 		return ('Listing(\n     price=%s\n     housingType=%s\n     address=%s\n     phone=%s\n     bedrooms=%s\n     laundry=%s\n     parking=%s\n     dogsAllowed=%s\n     catsAllowed=%s\n     noSmoking=%s\n     area=%s\n     mapUrl=%s\n     listingUrl=%s\n)' % (repr(self.price), repr(self.housingType), repr(self.address), repr(self.phone), repr(self.bedrooms), repr(self.laundry), repr(self.parking), repr(self.dogsAllowed), repr(self.catsAllowed), repr(self.noSmoking), repr(self.area), repr(self.mapUrl), repr(self.listingUrl)))
-	
+		
 	def __str__(self):
 		return(self.representation())
 		
 	def __repr__(self):
 		return(self.representation())
 
+	# Instantiate the class and populate attributes based on data from the URL provided
 	def __init__(self, url):
-		print ('initialized',url)
 		self.listingUrl = url
+		
 		# Retrieve page and extract contents 
 		try:
 			page = urllib.request.urlopen(url)
@@ -85,110 +120,63 @@ class Listing:
 			print('whoops')
 			self = None
 			
+		self.listingBody = postingbody
+		
+		# Price 
+		self.price = postingtitle.split()[0]
+		try:
+			self.price.split('$')[1]
+		except IndexError:
+			self.price='' 
 
-def parseListing(url):
-    # Retrieve page and extract contents 
-    try:
-        page = urllib.request.urlopen(url)
-        soup = BeautifulSoup(page)    
-        postingtitle = soup.find('h2','postingtitle').get_text()
-        postingbody = soup.find('section',id='postingbody').get_text()
-        extension = url.split('/')[3]
-    except AttributeError:
-        return ''
+		# Address 
+		try:
+			address = soup.find('div','mapaddress').get_text()
+			self.address = address.replace(',', ' ')
+		except AttributeError:
+			pass
+		
+		# Contact phone number
+		try:
+			replylink = url.replace(extension, 'reply').replace('.html','')
+			replypage = str(urllib.request.urlopen(replylink).read())
+			self.phone = findPhone(replypage)
+		except AttributeError:
+			try:
+				self.phone = findPhone(postingbody)
+			except AttributeError:
+				pass
+		
+		# Go through block of discrete attributes        
+		attrgroup = soup.find('p','attrgroup')
+		for span in attrgroup.find_all('span'):
+			attribute = span.get_text()    
+			if 'ft2' in attribute: 
+				self.area = attribute 
+			elif 'laundry' in attribute or 'w/d' in attribute:
+				self.laundry = attribute
+			elif 'parking' in attribute or 'garage' in attribute or 'carport' in attribute:
+				self.parking = attribute
+			elif 'purrr' in attribute:
+				self.catsAllowed = True
+			elif 'wooof' in attribute:
+				self.dogsAllowed = True
+			elif 'no smoking' in attribute:
+				self.noSmoking = True
+			elif 'BR' in attribute:
+				self.bedrooms = attribute.split('BR')[0]
     
-    # Price 
-    price = postingtitle.split()[0]
-    try:
-        price.split('$')[1]
-    except IndexError:
-        price='' 
-
-    # Address 
-    try:
-        address = soup.find('div','mapaddress').get_text()
-        address = address.replace(',', ' ')
-    except AttributeError:
-        address = ''
-    
-    # Contact phone number
-    try:
-        replylink = url.replace(extension, 'reply').replace('.html','')
-        replypage = str(urllib.request.urlopen(replylink).read())
-        phone = findPhone(replypage)
-    except AttributeError:
-        try:
-            phone = findPhone(postingbody)
-        except AttributeError:
-            phone = ''    
-    
-    # Go through block of discrete attributes        
-    bedrooms=''
-    laundry=''
-    parking=''
-    
-    dogsAllowed=False
-    catsAllowed=False
-    noSmoking=False    
-    
-    attrgroup = soup.find('p','attrgroup')
-    for span in attrgroup.find_all('span'):
-        attribute = span.get_text()    
-        if 'ft2' in attribute: 
-            area = attribute 
-        elif 'laundry' in attribute or 'w/d' in attribute:
-            laundry = attribute
-        elif 'parking' in attribute or 'garage' in attribute or 'carport' in attribute:
-            parking = attribute
-        elif 'purrr' in attribute:
-            catsAllowed = True
-        elif 'wooof' in attribute:
-            dogsAllowed = True
-        elif 'no smoking' in attribute:
-            noSmoking = True
-        elif 'BR' in attribute:
-            bedrooms = attribute.split('BR')[0]
-        else:
-            '''print (attribute)'''
-    
-    # Make amenities from#parking, laundry, pets, and smoking 
-    amenities = []
-    if parking:
-        amenities.append(parking)
-    if laundry:
-        amenities.append(laundry)
-    if dogsAllowed and catsAllowed:
-        amenities.append('cats & dogs allowed')
-    elif dogsAllowed: 
-        amenities.append('dogs allowed')
-    elif catsAllowed:
-        amenities.append('cats allowed')
-    if noSmoking:
-        amenities.append('no smoking')
-                
-    if len(amenities)>0:
-        description = "Amenities include: " + '; '.join(amenities)
-        description = description.replace(',', ' ')
-    else:
-        description = ''
+		# Region
+		try:
+			mapaddress = soup.find('p','mapaddress')
+			self.mapUrl = mapaddress.find('a')['href']
+		except AttributeError:
+			pass
         
-    # Region
-    try:
-        mapaddress = soup.find('p','mapaddress')
-        mapLink = mapaddress.find('a')['href']
-    except AttributeError:
-        mapLink = ''
-        
-    # Type of housing
-    if extension == 'roo':
-        bedrooms = 'shared(0)'
-    elif extension == 'sub':
-        bedrooms = 'sublet(' + bedrooms + ')'
-    
-    # Return discrete data from the listing       
-    row = [bedrooms, price, phone, description, address, mapLink, postingbody, url]
-    return row
+		# Type of housing
+		self.housingType = extension
 
+'''
 	
 print('hello')
 url = 'http://madison.craigslist.org/apa/4393689706.html'
@@ -196,3 +184,4 @@ mylisting = Listing(url)
 print(mylisting.price)
 mylisting.bedrooms = 2
 print(mylisting)
+print(mylisting.row())'''
