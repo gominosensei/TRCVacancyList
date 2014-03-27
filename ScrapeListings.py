@@ -1,5 +1,6 @@
 '''
 Created on Mar 17, 2014
+Scrape Madison housing posts from craigslist and compile data for the TRC Housing Vacancy List
 @author: michael donnelly
 '''
 

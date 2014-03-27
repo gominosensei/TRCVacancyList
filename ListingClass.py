@@ -175,13 +175,3 @@ class Listing:
         
 		# Type of housing
 		self.housingType = extension
-
-'''
-	
-print('hello')
-url = 'http://madison.craigslist.org/apa/4393689706.html'
-mylisting = Listing(url)
-print(mylisting.price)
-mylisting.bedrooms = 2
-print(mylisting)
-print(mylisting.row())'''
