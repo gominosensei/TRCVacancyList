@@ -10,37 +10,60 @@ from bs4 import BeautifulSoup  # docs at http://www.crummy.com/software/Beautifu
 from pygeocoder import Geocoder # docs at https://bitbucket.org/xster/pygeocoder/wiki/Home
 # Google geocoding API docs at https://developers.google.com/maps/documentation/geocoding/?csw=1#GeocodingRequests
 
-def findPhone(text):
+def formatPhoneNumber(phone):
+	try:
+		phone = '-'.join(phone.groups())
+	except AttributeError:
+		pass
+	return (phone)
+
+def findPhone(text, strict = False):
     # RegEx Patterns
-    phonePattern = re.compile(r'''
-        (\d{3})     # area code is 3 digits (e.g. '800')
-        \D{0,2}     # optional 1 or 2 character separator
-        (\d{3})     # prefix is 3 digits (e.g. '555')
-        \D?         # optional 1 character separator
-        (\d{4})     # rest of number is 4 digits (e.g. '1212')
-        ''', re.VERBOSE)
+	phonePattern = re.compile(r'''
+		(\d{3})     # area code is 3 digits (e.g. '800')
+		\D{0,2}     # optional 1 or 2 character separator
+		(\d{3})     # prefix is 3 digits (e.g. '555')
+		\D?         # optional 1 character separator
+		(\d{4})     # rest of number is 4 digits (e.g. '1212')
+		''', re.VERBOSE)
 
-    phonePatternNoAreaCode = re.compile(r'''
-        (\d{3})     # prefix is 3 digits (e.g. '555')
-        -           # require literal dash to avoid false positives
-        (\d{4})     # rest of number is 4 digits (e.g. '1212')
-        ''', re.VERBOSE)
+	phonePatternNoAreaCode = re.compile(r'''
+		(\d{3})     # prefix is 3 digits (e.g. '555')
+		-           # require literal dash to avoid false positives
+		(\d{4})     # rest of number is 4 digits (e.g. '1212')
+		''', re.VERBOSE)
+		
+	phonePatternStrict = re.compile(r'''
+		(\d{3})     # area code is 3 digits (e.g. '800')
+		-     		# literal dash
+		(\d{3})     # prefix is 3 digits (e.g. '555')
+		-           # literal dash
+		(\d{4})     # rest of number is 4 digits (e.g. '1212')
+		''', re.VERBOSE)
 
-    # Search first with then without area code
-    try:
-        phone = phonePattern.search(text)
-    except AttributeError:
-        try:
-            phone = phonePatternNoAreaCode.search(text)
-        except AttributeError:
-            phone = ''
-    # Format for display with dashes
-    try:
-        phone = '-'.join(phone.groups())
-    except AttributeError:
-        phone = ''
-        
-    return(phone)
+	# First look for a number with area code separated by dashes
+	try:
+		phone = phonePatternStrict.search(text)
+	except AttributeError:
+		pass
+		
+	if (phone):
+		return(formatPhoneNumber(phone))
+
+	# If matching is strict, give up if that didn't work. 
+	if (strict):
+		return('')
+		
+	# Otherwise search for any number with an area code with looser rules on the dividers
+	try:
+		phone = phonePattern.search(text)
+	except AttributeError:
+		try:
+			phone = phonePatternNoAreaCode.search(text)
+		except AttributeError:
+			phone = ''
+			
+	return(formatPhoneNumber(phone))
 	
 class Listing:
 	# Attributes
@@ -140,7 +163,7 @@ class Listing:
 		try:
 			replylink = url.replace(extension, 'reply').replace('.html','')
 			replypage = str(urllib.request.urlopen(replylink).read())
-			self.phone = findPhone(replypage)
+			self.phone = findPhone(replypage, True)
 		except AttributeError:
 			try:
 				self.phone = findPhone(postingbody)
