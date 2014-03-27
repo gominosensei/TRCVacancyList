@@ -33,7 +33,11 @@ def createSpreadsheet(workbook):
     worksheet.set_column('E:E', 14) # available 
     worksheet.set_column('F:F', 35) # address
     worksheet.set_column('G:G', 10) # region 
-    worksheet.set_column('H:H', 70) # listing
+    worksheet.set_column('H:H', 9)  # county
+    worksheet.set_column('I:I', 6)  # ZIP code
+    worksheet.set_column('J:J', 17) # neighborhood
+    worksheet.set_column('K:K', 70) # listing
+    # L listing URL
     
     # Headers
     bold = workbook.add_format({'bold': True})
@@ -46,8 +50,11 @@ def createSpreadsheet(workbook):
     worksheet.write('E1', 'Available', bold)
     worksheet.write('F1', 'Address', bold)
     worksheet.write('G1', 'Region', bold)
-    worksheet.write('H1', 'Listing', italics)
-    worksheet.write('I1', 'URL', italics)
+    worksheet.write('H1', 'County', italics)
+    worksheet.write('I1', 'ZIP', italics)
+    worksheet.write('J1', 'Neighborhood', italics)
+    worksheet.write('K1', 'Listing', italics)
+    worksheet.write('L1', 'URL', italics)
             
     return worksheet
 
@@ -70,7 +77,10 @@ def addRow(workbook, worksheet, rowNumber, listing):
 	worksheet.write(rowNumber, 3, listing.descriptionField(), wrap)
 	# availability
 	worksheet.write(rowNumber, 5, listing.address, top)
-	worksheet.write(rowNumber, 6, listing.mapUrl)
-	worksheet.write(rowNumber, 7, listing.listingBody, wrap)
-	worksheet.write(rowNumber, 8, listing.listingUrl)
+	worksheet.write(rowNumber, 6, listing.mapUrl)	
+	worksheet.write(rowNumber, 7, listing.county, top)
+	worksheet.write(rowNumber, 8, listing.zip, top)
+	worksheet.write(rowNumber, 9, listing.neighborhood, top)
+	worksheet.write(rowNumber, 10, listing.listingBody, wrap)
+	worksheet.write(rowNumber, 11, listing.listingUrl)
 

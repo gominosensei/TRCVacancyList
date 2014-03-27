@@ -21,9 +21,9 @@ maximumRows = 3 #3000
 def scrapeRow(row, urlbase, rowNumber, workbook, worksheet):
 	link = row.find('a')
 	url = urlbase + link['href']
+	print(rowNumber,"adding listing",url)
 	thisListing = Listing(url)
 	addRow(workbook, worksheet, rowNumber, thisListing)
-	print(rowNumber,"adding listing",url)
 
 def scrapePage(listUrl, urlbase, rowNumber, workbook, worksheet):
     print('\nscraping',listUrl)

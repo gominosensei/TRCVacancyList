@@ -7,6 +7,8 @@ Created on Mar 17, 2014
 import re
 import urllib.request
 from bs4 import BeautifulSoup  # docs at http://www.crummy.com/software/BeautifulSoup/bs4/doc/
+from pygeocoder import Geocoder # docs at https://bitbucket.org/xster/pygeocoder/wiki/Home
+# Google geocoding API docs at https://developers.google.com/maps/documentation/geocoding/?csw=1#GeocodingRequests
 
 def findPhone(text):
     # RegEx Patterns
@@ -55,7 +57,10 @@ class Listing:
 	area = ''
 	mapUrl = ''
 	listingUrl = ''
-	listingBody = ''		
+	listingBody = ''	
+	county = ''
+	neighborhood = ''
+	zip = ''
 		
 	# Combined output of several attributes for the description column
 	def descriptionField(self):			
@@ -91,7 +96,7 @@ class Listing:
 		return self.bedrooms
 
 	def representation(self):
-		return ('Listing(\n     price=%s\n     housingType=%s\n     address=%s\n     phone=%s\n     bedrooms=%s\n     laundry=%s\n     parking=%s\n     dogsAllowed=%s\n     catsAllowed=%s\n     noSmoking=%s\n     area=%s\n     mapUrl=%s\n     listingUrl=%s\n)' % (repr(self.price), repr(self.housingType), repr(self.address), repr(self.phone), repr(self.bedrooms), repr(self.laundry), repr(self.parking), repr(self.dogsAllowed), repr(self.catsAllowed), repr(self.noSmoking), repr(self.area), repr(self.mapUrl), repr(self.listingUrl)))
+		return ('Listing(\n     price=%s\n     housingType=%s\n     address=%s\n     phone=%s\n     bedrooms=%s\n     laundry=%s\n     parking=%s\n     dogsAllowed=%s\n     catsAllowed=%s\n     noSmoking=%s\n     area=%s\n     zip=%s\n     county=%s\n     neighborhood=%s\n     mapUrl=%s\n     listingUrl=%s\n)' % (repr(self.price), repr(self.housingType), repr(self.address), repr(self.phone), repr(self.bedrooms), repr(self.laundry), repr(self.parking), repr(self.dogsAllowed), repr(self.catsAllowed), repr(self.noSmoking), repr(self.area), repr(self.zip), repr(self.county), repr(self.neighborhood), repr(self.mapUrl), repr(self.listingUrl)))
 		
 	def __str__(self):
 		return(self.representation())
@@ -100,9 +105,7 @@ class Listing:
 		return(self.representation())
 
 	# Instantiate the class and populate attributes based on data from the URL provided
-	def __init__(self, url):
-		self.listingUrl = url
-		
+	def __init__(self, url):	
 		# Retrieve page and extract contents 
 		try:
 			page = urllib.request.urlopen(url)
@@ -129,6 +132,9 @@ class Listing:
 			self.address = address.replace(',', ' ')
 		except AttributeError:
 			pass
+		
+		# Type of housing
+		self.housingType = extension
 		
 		# Contact phone number
 		try:
@@ -160,12 +166,23 @@ class Listing:
 			elif 'BR' in attribute:
 				self.bedrooms = attribute.split('BR')[0]
     
-		# Region
+		# URLs
+		self.listingUrl = url
 		try:
 			mapaddress = soup.find('p','mapaddress')
 			self.mapUrl = mapaddress.find('a')['href']
 		except AttributeError:
 			pass
         
-		# Type of housing
-		self.housingType = extension
+		# Geocode based on the Maps URL
+		try:
+			mapQueryString = self.mapUrl.split('?q=')[1]
+			geocode = Geocoder.geocode(mapQueryString)
+			county = geocode.administrative_area_level_2
+			self.county = county.split(' ')[0]
+			self.neighborhood = geocode.neighborhood
+			self.zip = geocode.postal_code
+		except:
+			pass
+		
+		print(self)
