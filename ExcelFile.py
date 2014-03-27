@@ -6,6 +6,7 @@ Created on Mar 18, 2014
 
 import sys
 import xlsxwriter  # docs at http://xlsxwriter.readthedocs.org/contents.html
+import ListingClass
 
 def openFile(filename):
     workbook = xlsxwriter.Workbook(filename)
@@ -53,7 +54,9 @@ def createSpreadsheet(workbook):
 def saveSpreadsheet(workbook):
     workbook.close()
 
-def addRow(workbook, worksheet, rowNumber, rowData):
+def addRow(workbook, worksheet, rowNumber, listing):
+    rowData = listing.row()
+
     # Formatting
     top = workbook.add_format()
     top.set_align('top')

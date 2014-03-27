@@ -21,8 +21,7 @@ def scrapeRow(row, urlbase, rowNumber, workbook, worksheet):
 	link = row.find('a')
 	url = urlbase + link['href']
 	thisListing = Listing(url)
-	row = thisListing.row()
-	addRow(workbook, worksheet, rowNumber, row)
+	addRow(workbook, worksheet, rowNumber, thisListing)
 	print(rowNumber,"adding listing",url)
 
 def scrapePage(listUrl, urlbase, rowNumber, workbook, worksheet):
