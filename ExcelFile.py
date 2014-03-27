@@ -55,8 +55,6 @@ def saveSpreadsheet(workbook):
     workbook.close()
 
 def addRow(workbook, worksheet, rowNumber, listing):
-	rowData = listing.row()
-
 	# Formatting
 	top = workbook.add_format()
 	top.set_align('top')

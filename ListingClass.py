@@ -39,7 +39,7 @@ def findPhone(text):
         phone = ''
         
     return(phone)
-
+	
 class Listing:
 	# Attributes
 	price = ''
@@ -89,12 +89,6 @@ class Listing:
 		if self.housingType == 'sub':
 			return 'sublet(' + self.bedrooms + ')'
 		return self.bedrooms
-
-	# Legacy support - spit out the row with all the fields in order
-	def row(self):				
-		# Return discrete data from the listing       
-		row = [self.bedroomsField(), self.price, self.phone, self.descriptionField(), self.address, self.mapUrl, self.listingBody, self.listingUrl]
-		return row
 
 	def representation(self):
 		return ('Listing(\n     price=%s\n     housingType=%s\n     address=%s\n     phone=%s\n     bedrooms=%s\n     laundry=%s\n     parking=%s\n     dogsAllowed=%s\n     catsAllowed=%s\n     noSmoking=%s\n     area=%s\n     mapUrl=%s\n     listingUrl=%s\n)' % (repr(self.price), repr(self.housingType), repr(self.address), repr(self.phone), repr(self.bedrooms), repr(self.laundry), repr(self.parking), repr(self.dogsAllowed), repr(self.catsAllowed), repr(self.noSmoking), repr(self.area), repr(self.mapUrl), repr(self.listingUrl)))
