@@ -86,5 +86,5 @@ def addRow(workbook, worksheet, rowNumber, listing):
 		worksheet.write(rowNumber, 7, listing.county, top)
 	worksheet.write(rowNumber, 8, listing.neighborhood, top)
 	worksheet.write(rowNumber, 9, listing.listingBody, wrap)
-	worksheet.write(rowNumber, 10, listing.listingUrl)
+	worksheet.write_url(rowNumber, 10, listing.listingUrl, link)
 
