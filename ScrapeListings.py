@@ -26,6 +26,9 @@ def scrapeRow(row, urlbase, rowNumber, workbook, worksheet):
 	if thisListing.county == "Dane" or thisListing.county == "":
 		print(rowNumber,"adding listing",url)
 		addRow(workbook, worksheet, rowNumber, thisListing)
+		return 1
+	else:
+		return 0
 
 def scrapePage(listUrl, urlbase, rowNumber, workbook, worksheet):
     print('\nscraping',listUrl)
@@ -37,10 +40,9 @@ def scrapePage(listUrl, urlbase, rowNumber, workbook, worksheet):
     # Loop over listings and add each one to the sheet
     rowsOnThisPage = 1
     for row in soup.find_all('p','row'):
-        rowNumber += 1
         if rowNumber > maximumRows:
             break
-        scrapeRow(row, urlbase, rowNumber, workbook, worksheet)
+        rowNumber += scrapeRow(row, urlbase, rowNumber, workbook, worksheet)
 
         rowsOnThisPage += 1
         if rowsOnThisPage > 101:   # for testing
@@ -66,7 +68,7 @@ def scrapeCategory(categoryUrl, pages, urlbase, rowNumber, workbook, worksheet):
 start = time.time()
 workbook = openFile(filename)
 worksheet = createSpreadsheet(workbook)
-rowNumber = 0
+rowNumber = 1
 
 # Loop over categories: normal, rooms, sublets
 for category in range(0,3):
