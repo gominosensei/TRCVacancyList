@@ -16,14 +16,16 @@ urlbase = 'http://madison.craigslist.org'
 extension = ['apa', 'roo', 'sub']
 maximumPages = [20, 5, 3]
 filename = 'vacancy_list.xlsx'
-maximumRows = 3 #3000
+maximumRows = 10 #3000
 
 def scrapeRow(row, urlbase, rowNumber, workbook, worksheet):
 	link = row.find('a')
 	url = urlbase + link['href']
-	print(rowNumber,"adding listing",url)
 	thisListing = Listing(url)
-	addRow(workbook, worksheet, rowNumber, thisListing)
+	# Only add listings that are known to be in Dane County or where we can't tell.
+	if thisListing.county == "Dane" or thisListing.county == "":
+		print(rowNumber,"adding listing",url)
+		addRow(workbook, worksheet, rowNumber, thisListing)
 
 def scrapePage(listUrl, urlbase, rowNumber, workbook, worksheet):
     print('\nscraping',listUrl)
