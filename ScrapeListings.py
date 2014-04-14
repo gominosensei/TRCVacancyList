@@ -6,6 +6,7 @@ Scrape Madison housing posts from craigslist and compile data for the TRC Housin
 
 import urllib.request
 import time
+import logging
 import xlsxwriter
 from bs4 import BeautifulSoup
 from ExcelFile import openFile, createSpreadsheet, addRow, saveSpreadsheet
@@ -16,7 +17,10 @@ urlbase = 'http://madison.craigslist.org'
 extension = ['apa', 'roo', 'sub']
 maximumPages = [20, 5, 3]
 filename = 'vacancy_list.xlsx'
-maximumRows = 10 #3000
+logfile = 'hvl.log'
+loglevel = logging.DEBUG
+#loglevel = logging.INFO
+maximumRows = 1  #3000
 
 def scrapeRow(row, urlbase, rowNumber, workbook, worksheet):
 	link = row.find('a')
@@ -24,14 +28,15 @@ def scrapeRow(row, urlbase, rowNumber, workbook, worksheet):
 	thisListing = Listing(url)
 	# Only add listings that are known to be in Dane County or where we can't tell.
 	if thisListing.county == "Dane" or thisListing.county == "":
-		print(rowNumber,"adding listing",url)
+		logging.info('[%s] %s', rowNumber, url)
 		addRow(workbook, worksheet, rowNumber, thisListing)
 		return 1
 	else:
+		logging.debug('[excluded] %s', url)
 		return 0
 
 def scrapePage(listUrl, urlbase, rowNumber, workbook, worksheet):
-    print('\nscraping',listUrl)
+    logging.info('Scraping lising page %s', listUrl)
 
     # Get the list of craigslist posts
     page = urllib.request.urlopen(listUrl)
@@ -66,6 +71,9 @@ def scrapeCategory(categoryUrl, pages, urlbase, rowNumber, workbook, worksheet):
 
 # Setup
 start = time.time()
+logging.basicConfig(filename=logfile,level=loglevel)
+logging.info('===================================')
+logging.info('HVL started %s', str(time.ctime()))
 workbook = openFile(filename)
 worksheet = createSpreadsheet(workbook)
 rowNumber = 1
@@ -77,9 +85,10 @@ for category in range(0,3):
     
     rowNumber = scrapeCategory(categoryUrl, pages, urlbase, rowNumber, workbook, worksheet)
     if rowNumber > maximumRows:
-        break
+    	logging.warning('Stopped after %s rows', maximumRows)
+    	break
    
 saveSpreadsheet(workbook)
 end = time.time()
-print('done in',end-start,'seconds')
-input("Press Enter to continue...")
+logging.info('HVL done in %s seconds', end-start)
+#input("Press Enter to continue...")

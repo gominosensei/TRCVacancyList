@@ -5,6 +5,7 @@ Created on Mar 17, 2014
 '''
 
 import re
+import logging
 import urllib.request
 from bs4 import BeautifulSoup  # docs at http://www.crummy.com/software/BeautifulSoup/bs4/doc/
 from pygeocoder import Geocoder # docs at https://bitbucket.org/xster/pygeocoder/wiki/Home
@@ -14,6 +15,7 @@ def formatPhoneNumber(phone):
 	try:
 		phone = '-'.join(phone.groups())
 	except AttributeError:
+		logging.error('Error formatting phone number: %s', phone)
 		pass
 	return (phone)
 
@@ -137,8 +139,9 @@ class Listing:
 			postingbody = soup.find('section',id='postingbody').get_text()
 			extension = url.split('/')[3]
 		except AttributeError:
-			print('whoops')
+			logging.error('Failed to download listing %s', url)
 			self = None
+			return
 			
 		self.listingBody = postingbody
 		
@@ -147,6 +150,7 @@ class Listing:
 		try:
 			self.price.split('$')[1]
 		except IndexError:
+			logging.debug('Non-$ price %s,', self.price)
 			self.price='' 
 
 		# Address 
@@ -165,6 +169,7 @@ class Listing:
 			replypage = str(urllib.request.urlopen(replylink).read())
 			self.phone = findPhone(replypage, True)
 		except AttributeError:
+			logging.debug('No phone from reply page')
 			try:
 				self.phone = findPhone(postingbody)
 			except AttributeError:
@@ -188,6 +193,8 @@ class Listing:
 				self.noSmoking = True
 			elif 'BR' in attribute:
 				self.bedrooms = attribute.split('BR')[0]
+			else:
+				logging.debug('Mystery attribute: %s', attribute)
     
 		# URLs
 		self.listingUrl = url
@@ -206,4 +213,5 @@ class Listing:
 			self.neighborhood = geocode.neighborhood
 			self.zip = geocode.postal_code
 		except:
+			logging.debug('Geocoding error')
 			pass

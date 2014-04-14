@@ -3,3 +3,5 @@ vacancy_list.xlsx
 *.lnk
 ~$vacancy_list.xlsx
 *.xlsx
+*.log
+

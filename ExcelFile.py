@@ -5,6 +5,7 @@ Created on Mar 18, 2014
 '''
 
 import sys
+import logging
 import xlsxwriter  # docs at http://xlsxwriter.readthedocs.org/contents.html
 import ListingClass
 
@@ -16,6 +17,7 @@ def openFile(filename):
         return workbook 
     except PermissionError:
         print('Someone has',filename,'open. Close it and run the script again.\n')
+        logging.critical('File cannot be locked: %s', filename)
         input('Press Enter to continue...')
         sys.exit()
         return 
