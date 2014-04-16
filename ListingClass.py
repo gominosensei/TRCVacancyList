@@ -1,5 +1,5 @@
 '''
-Download a craigslist housing post and extract data for the Tenant Resource Center Vacancy List
+Class to represent a craigslist housing post
 Created on Mar 17, 2014
 @author: michael donnelly
 '''
@@ -120,6 +120,13 @@ class Listing:
 			return 'Sublet(' + self.bedrooms + ')'
 		return self.bedrooms
 
+	def addressWithNeighborhood(self):
+		if self.neighborhood == '':
+			return self.address
+		if self.address == '':
+			return self.neighborhood
+		return '%s (%s)' % (self.address, self.neighborhood)
+
 	def representation(self):
 		return ('Listing(\n     price=%s\n     housingType=%s\n     address=%s\n     phone=%s\n     bedrooms=%s\n     laundry=%s\n     parking=%s\n     dogsAllowed=%s\n     catsAllowed=%s\n     noSmoking=%s\n     area=%s\n     zip=%s\n     county=%s\n     neighborhood=%s\n     mapUrl=%s\n     listingUrl=%s\n)' % (repr(self.price), repr(self.housingType), repr(self.address), repr(self.phone), repr(self.bedrooms), repr(self.laundry), repr(self.parking), repr(self.dogsAllowed), repr(self.catsAllowed), repr(self.noSmoking), repr(self.area), repr(self.zip), repr(self.county), repr(self.neighborhood), repr(self.mapUrl), repr(self.listingUrl)))
 		
@@ -168,7 +175,7 @@ class Listing:
 			replylink = url.replace(extension, 'reply').replace('.html','')
 			replypage = str(urllib.request.urlopen(replylink).read())
 			self.phone = findPhone(replypage, True)
-		except AttributeError:
+		except (AttributeError, HTTPError):
 			logging.debug('No phone from reply page')
 			try:
 				self.phone = findPhone(postingbody)
